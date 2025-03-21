@@ -1,4 +1,4 @@
-package handlers
+package delivery
 
 import (
 	"encoding/json"
@@ -8,12 +8,20 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"taskManager/internal/app/config"
-	"taskManager/internal/app/db"
-	"taskManager/internal/app/models"
+	"taskManager/internal/config"
+	"taskManager/internal/entity"
+	"taskManager/internal/repository"
 )
 
-func SaveDataToFile(c *gin.Context) {
+type Handler struct {
+	uc IUseCase
+}
+
+func New(usecase IUseCase) *Handler {
+	return &Handler{uc: usecase}
+}
+
+func (h *Handler) SaveDataToFile(c *gin.Context) {
 	file, err := os.Create(config.Config.FileName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -28,7 +36,7 @@ func SaveDataToFile(c *gin.Context) {
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", " ")
 
-	for _, task := range db.Storage {
+	for _, task := range repository.Storage {
 		if err := encoder.Encode(task); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -38,89 +46,83 @@ func SaveDataToFile(c *gin.Context) {
 	c.JSON(http.StatusOK, "data saved successfully")
 }
 
-func CreateTask(c *gin.Context) {
-	var task models.Task
+func (h *Handler) CreateTask(c *gin.Context) {
+	var task entity.Task
 	if err := c.BindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	task.ID = uuid.New()
-	db.Storage[task.ID] = task
-	c.JSON(http.StatusCreated, task.ID)
+	id, err := h.uc.CreateTask(task)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, gin.H{"id": id})
 }
 
-func GetFilteredTasks(c *gin.Context) {
+func (h *Handler) GetFilteredTasks(c *gin.Context) {
 	statusParam := c.Query("status")
 	priorityParam := c.Query("priority")
 	c.Header("Cache-Control", "public, max-age=3600")
 
-	if statusParam == "" && priorityParam == "" {
-		c.JSON(http.StatusOK, db.Storage)
-		return
-	}
-
 	var err error
-	var status bool
+	var status *bool
 	if statusParam != "" {
-		status, err = strconv.ParseBool(statusParam)
+		status = new(bool)
+		*status, err = strconv.ParseBool(statusParam)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 	}
 
-	var priority int
+	var priority *int
 	if priorityParam != "" {
-		priority, err = strconv.Atoi(priorityParam)
+		priority = new(int)
+		*priority, err = strconv.Atoi(priorityParam)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 	}
 
-	var result = make(map[uuid.UUID]models.Task)
-	for _, task := range db.Storage {
-		if (statusParam != "" && status != task.Status) || (priorityParam != "" && priority != task.Priority) {
-			continue
-		} else {
-			result[task.ID] = task
-		}
+	result, err := h.uc.GetFilteredTasks(status, priority)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 	c.JSON(http.StatusOK, result)
 }
 
-func UpdateTask(c *gin.Context) {
+func (h *Handler) UpdateTask(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var task models.Task
+	var task entity.Task
 	if err = c.BindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_, exists := db.Storage[id]
-	if !exists {
-		c.Status(http.StatusNotFound)
+	res, err := h.uc.UpdateTask(id, task)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	task.ID = id
-	db.Storage[task.ID] = task
-	c.JSON(http.StatusOK, task)
+	c.JSON(http.StatusOK, res)
 }
 
-func DeleteTask(c *gin.Context) {
+func (h *Handler) DeleteTask(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_, exists := db.Storage[id]
-	if !exists {
-		c.Status(http.StatusNotFound)
+	err = h.uc.DeleteTask(id)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
 		return
 	}
-	delete(db.Storage, id)
 	c.Status(http.StatusOK)
 }

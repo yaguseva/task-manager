@@ -1,0 +1,6 @@
+file_name: "tasks.json"
+db_path: "./storage.db"
+
+server:
+  host: "localhost"
+  port: 8080

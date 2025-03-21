@@ -3,9 +3,11 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"taskManager/internal/app/config"
-	"taskManager/internal/app/db"
-	"taskManager/internal/app/endpoints"
+	"taskManager/internal/app"
+	"taskManager/internal/app/delivery"
+	"taskManager/internal/config"
+	"taskManager/internal/repository"
+	"taskManager/internal/usecase"
 )
 
 func main() {
@@ -14,12 +16,10 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	err = db.LoadData()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+	repo := repository.New()
+	uc := usecase.New(repo)
+	handlers := delivery.New(uc)
 	engine := gin.Default()
-	endpoints.InitTaskEndpoints(engine)
+	app.InitTaskEndpoints(engine, handlers)
 	engine.Run(":" + config.Config.Server.Port)
 }

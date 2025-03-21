@@ -1,15 +1,15 @@
-package db
+package repository
 
 import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"log"
 	"os"
-	"taskManager/internal/app/config"
-	"taskManager/internal/app/models"
+	"taskManager/internal/config"
+	"taskManager/internal/entity"
 )
 
-var Storage = make(map[uuid.UUID]models.Task)
+var Storage = make(map[uuid.UUID]entity.Task)
 
 func LoadData() (err error) {
 	file, err := os.Open(config.Config.FileName)
@@ -23,7 +23,7 @@ func LoadData() (err error) {
 	}()
 
 	decoder := json.NewDecoder(file)
-	var task models.Task
+	var task entity.Task
 	for {
 		if err = decoder.Decode(&task); err != nil {
 			if err.Error() == "EOF" {

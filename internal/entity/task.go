@@ -1,4 +1,4 @@
-package models
+package entity
 
 import "github.com/google/uuid"
 
@@ -8,4 +8,9 @@ type Task struct {
 	Description string    `json:"description"`
 	Status      bool      `json:"status"`
 	Priority    int       `json:"priority"`
+}
+
+type TaskDTO struct {
+	Tasks []Task
+	Count int
 }

@@ -6,7 +6,8 @@ import (
 )
 
 type Configuration struct {
-	FileName string `yaml:"fileName"`
+	FileName string `yaml:"file_name"`
+	DBPath   string `yaml:"db_path"`
 	Server   struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
@@ -16,7 +17,7 @@ type Configuration struct {
 var Config Configuration
 
 func InitConfig() error {
-	data, err := os.ReadFile("internal/app/config/config.yaml")
+	data, err := os.ReadFile("internal/config/config.yaml")
 	if err != nil {
 		return err
 	}
