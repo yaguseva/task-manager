@@ -1,25 +1,18 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"log"
 	"taskManager/internal/app"
-	"taskManager/internal/app/delivery"
 	"taskManager/internal/config"
-	"taskManager/internal/repository"
-	"taskManager/internal/usecase"
+	"taskManager/pkg/logger"
 )
 
 func main() {
-	err := config.InitConfig()
+	err := config.Initialize()
 	if err != nil {
-		log.Fatal(err)
-		return
+		panic(err)
 	}
-	repo := repository.New()
-	uc := usecase.New(repo)
-	handlers := delivery.New(uc)
-	engine := gin.Default()
-	app.InitTaskEndpoints(engine, handlers)
-	engine.Run(":" + config.Config.Server.Port)
+	appLogger := logger.Initialize()
+	if err := app.New(appLogger).Run(); err != nil {
+		panic(err)
+	}
 }

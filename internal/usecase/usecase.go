@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"taskManager/internal/entity"
 )
@@ -13,13 +14,13 @@ func New(repo IDatabase) *UseCase {
 	return &UseCase{repo: repo}
 }
 
-func (uc *UseCase) CreateTask(task entity.Task) (uuid.UUID, error) {
+func (uc *UseCase) CreateTask(ctx context.Context, task entity.Task) (uuid.UUID, error) {
 	task.ID = uuid.New()
-	return task.ID, uc.repo.CreateTask(task)
+	return task.ID, uc.repo.CreateTask(ctx, task)
 }
 
-func (uc *UseCase) GetFilteredTasks(status *bool, priority *int) (map[uuid.UUID]entity.Task, error) {
-	tasks, err := uc.repo.GetFilteredTasks(status, priority)
+func (uc *UseCase) GetFilteredTasks(ctx context.Context, status *bool, priority *int) (map[uuid.UUID]entity.Task, error) {
+	tasks, err := uc.repo.GetFilteredTasks(ctx, status, priority)
 	if err != nil {
 		return nil, err
 	}
@@ -30,10 +31,10 @@ func (uc *UseCase) GetFilteredTasks(status *bool, priority *int) (map[uuid.UUID]
 	return result, nil
 }
 
-func (uc *UseCase) UpdateTask(id uuid.UUID, task entity.Task) (entity.Task, error) {
-	return uc.repo.UpdateTask(id, task)
+func (uc *UseCase) UpdateTask(ctx context.Context, id uuid.UUID, task entity.Task) (entity.Task, error) {
+	return uc.repo.UpdateTask(ctx, id, task)
 }
 
-func (uc *UseCase) DeleteTask(id uuid.UUID) error {
-	return uc.repo.DeleteTask(id)
+func (uc *UseCase) DeleteTask(ctx context.Context, id uuid.UUID) error {
+	return uc.repo.DeleteTask(ctx, id)
 }

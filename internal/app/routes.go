@@ -10,5 +10,4 @@ func InitTaskEndpoints(engine *gin.Engine, h *delivery.Handler) {
 	engine.GET("/task", h.GetFilteredTasks)
 	engine.PUT("/task/:id", h.UpdateTask)
 	engine.DELETE("/task/:id", h.DeleteTask)
-	engine.POST("/task/save", h.SaveDataToFile)
 }
