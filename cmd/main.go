@@ -1,8 +1,8 @@
 package main
 
 import (
+	"taskManager/config"
 	"taskManager/internal/app"
-	"taskManager/internal/config"
 	"taskManager/pkg/logger"
 )
 

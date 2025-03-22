@@ -3,8 +3,8 @@ package app
 import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap/zapcore"
+	"taskManager/config"
 	"taskManager/internal/app/delivery"
-	"taskManager/internal/config"
 	"taskManager/internal/repository"
 	"taskManager/internal/usecase"
 )

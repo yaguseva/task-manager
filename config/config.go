@@ -17,7 +17,7 @@ type Configuration struct {
 var Config Configuration
 
 func Initialize() error {
-	data, err := os.ReadFile("internal/config/config.yaml")
+	data, err := os.ReadFile("config/config.yaml")
 	if err != nil {
 		return err
 	}
