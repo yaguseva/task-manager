@@ -7,10 +7,7 @@ import (
 )
 
 func main() {
-	err := config.Initialize()
-	if err != nil {
-		panic(err)
-	}
+	config.Initialize()
 	appLogger := logger.Initialize()
 	if err := app.New(appLogger).Run(); err != nil {
 		panic(err)

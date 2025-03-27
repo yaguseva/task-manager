@@ -1,26 +1,14 @@
 package config
 
 import (
-	"gopkg.in/yaml.v3"
-	"os"
+	"fmt"
+	"github.com/spf13/viper"
 )
 
-type Configuration struct {
-	FileName string `yaml:"file_name"`
-	DBPath   string `yaml:"db_path"`
-	Server   struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
+func Initialize() {
+	viper.SetConfigName("config")
+	viper.AddConfigPath("./config")
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
-}
-
-var Config Configuration
-
-func Initialize() error {
-	data, err := os.ReadFile("config/config.yaml")
-	if err != nil {
-		return err
-	}
-	err = yaml.Unmarshal(data, &Config)
-	return err
 }

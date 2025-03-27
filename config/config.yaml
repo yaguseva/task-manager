@@ -1,5 +1,6 @@
-file_name: "tasks.json"
-db_path: "./storage.db"
+db:
+  path: "./storage.db"
+  type: "postgres"
 
 server:
   host: "localhost"

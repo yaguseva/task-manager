@@ -2,10 +2,10 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"go.uber.org/zap/zapcore"
-	"taskManager/config"
 	"taskManager/internal/app/delivery"
-	"taskManager/internal/repository"
+	"taskManager/internal/repository/sqlite"
 	"taskManager/internal/usecase"
 )
 
@@ -23,7 +23,7 @@ type App struct {
 
 func New(logger ILogger) *App {
 	engine := gin.Default()
-	handlers := delivery.New(usecase.New(repository.New()))
+	handlers := delivery.New(usecase.New(sqlite.New()))
 	InitTaskEndpoints(engine, handlers)
 	return &App{
 		engine: engine,
@@ -32,5 +32,5 @@ func New(logger ILogger) *App {
 }
 
 func (a *App) Run() error {
-	return a.engine.Run(":" + config.Config.Server.Port)
+	return a.engine.Run(":" + viper.GetString("server.port"))
 }

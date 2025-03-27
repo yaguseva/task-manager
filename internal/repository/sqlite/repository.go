@@ -1,10 +1,10 @@
-package repository
+package sqlite
 
 import (
 	"database/sql"
 	"github.com/pressly/goose/v3"
+	"github.com/spf13/viper"
 	_ "modernc.org/sqlite"
-	"taskManager/config"
 	_ "taskManager/migrations"
 )
 
@@ -13,7 +13,7 @@ type Repo struct {
 }
 
 func New() *Repo {
-	db, err := sql.Open("sqlite", config.Config.DBPath)
+	db, err := sql.Open("sqlite", viper.GetString("db.path"))
 	if err != nil {
 		panic(err)
 	}
