@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap/zapcore"
 	"taskManager/internal/app/delivery"
-	"taskManager/internal/repository/sqlite"
+	"taskManager/internal/repository"
 	"taskManager/internal/usecase"
 )
 
@@ -23,7 +23,7 @@ type App struct {
 
 func New(logger ILogger) *App {
 	engine := gin.Default()
-	handlers := delivery.New(usecase.New(sqlite.New()))
+	handlers := delivery.New(usecase.New(repository.New()))
 	InitTaskEndpoints(engine, handlers)
 	return &App{
 		engine: engine,

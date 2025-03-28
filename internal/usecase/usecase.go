@@ -4,13 +4,14 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"taskManager/internal/entity"
+	"taskManager/internal/repository"
 )
 
 type UseCase struct {
-	repo IDatabase
+	repo repository.IDatabase
 }
 
-func New(repo IDatabase) *UseCase {
+func New(repo repository.IDatabase) *UseCase {
 	return &UseCase{repo: repo}
 }
 

@@ -1,6 +1,11 @@
 db:
-  path: "./storage.db"
   type: "postgres"
+  sqlite:
+    path: "./storage.db"
+  postgres:
+    user: "postgres"
+    name: "tasks_db"
+    sslmode: "disable"
 
 server:
   host: "localhost"

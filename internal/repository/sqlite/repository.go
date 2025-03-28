@@ -13,7 +13,7 @@ type Repo struct {
 }
 
 func New() *Repo {
-	db, err := sql.Open("sqlite", viper.GetString("db.path"))
+	db, err := sql.Open("sqlite", viper.GetString("db.sqlite.path"))
 	if err != nil {
 		panic(err)
 	}

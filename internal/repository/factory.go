@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"taskManager/internal/entity"
+	"taskManager/internal/repository/postgres"
 	"taskManager/internal/repository/sqlite"
 )
 
@@ -16,12 +18,13 @@ type IDatabase interface {
 }
 
 func New() IDatabase {
-	switch viper.GetString("db.type") {
+	dbType := viper.GetString("db.type")
+	switch dbType {
 	case "sqlite":
 		return sqlite.New()
 	case "postgres":
-
+		return postgres.New()
+	default:
+		panic(fmt.Sprintf("%q: unknown db type", dbType))
 	}
-
-	return nil
 }
